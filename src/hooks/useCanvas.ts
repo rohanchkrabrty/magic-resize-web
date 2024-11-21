@@ -274,13 +274,17 @@ export function useCanvas({}: Props) {
     //   applyCrop(e.target.value);
     // };
     fitStageIntoParentContainer();
-    setAlign(align);
-    setReset(reset);
+
     window.addEventListener("resize", fitStageIntoParentContainer);
     return () => {
       window.removeEventListener("resize", fitStageIntoParentContainer);
     };
   }, []);
+
+  useEffect(() => {
+    setAlign(align);
+    setReset(reset);
+  }, [align, reset]);
 
   return { parentRef, containerRef, isLoading, align, reset };
 }
