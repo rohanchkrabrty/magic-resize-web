@@ -1,204 +1,15 @@
-"use client";
-import useImageStore from "@/hooks/useImageStore";
-import Konva from "konva";
-import { Stage } from "konva/lib/Stage";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCanvas } from "@/hooks";
+import { ImageAlignment } from "@/types/image";
+import { cx } from "class-variance-authority";
 
 type Props = {};
-enum CROP {
-  CENTER_TOP = "center-top",
-  RIGHT_TOP = "right-top",
-  LEFT_MIDDLE = "left-middle",
-  CENTER_MIDDLE = "center-middle",
-  RIGHT_MIDDLE = "right-middle",
-  LEFT_BOTTOM = "left-bottom",
-  CENTER_BOTTOM = "center-bottom",
-  RIGHT_BOTTOM = "right-bottom",
-}
 
 export default function Canvas({}: Props) {
-  const currentImage = useImageStore(state => state.currentImage);
-  const router = useRouter();
+  const { parentRef, containerRef, isLoading, align, reset } = useCanvas({});
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const parentRef = useRef<HTMLDivElement>(null);
-  const konvaStageRef = useRef<Stage>();
-  const [crop, setCrop] = useState<CROP>(CROP.CENTER_MIDDLE);
-  const sceneWidth = 1000;
-  const sceneHeight = 1000;
-
-  function fitStageIntoParentContainer() {
-    console.log("canvas resized");
-    if (!konvaStageRef.current || !parentRef.current || !containerRef.current)
-      return;
-
-    // now we need to fit stage into parent container
-    const containerWidth = parentRef.current.offsetWidth;
-    const containerHeight = parentRef.current.offsetHeight;
-    const canvasSize = Math.min(containerHeight, containerWidth);
-    // console.log({ canvasSize, containerHeight, containerWidth });
-
-    // but we also make the full scene visible
-    // so we need to scale all objects on canvas
-    const scale = canvasSize / sceneWidth;
-
-    // containerRef.current.style.transform = `scale(${scale})`;
-
-    konvaStageRef.current.width(sceneWidth * scale);
-    konvaStageRef.current.height(sceneHeight * scale);
-    konvaStageRef.current.scale({ x: scale, y: scale });
-  }
-  useEffect(() => {
-    if (!currentImage?.src) return router.push("/");
-
-    if (!containerRef.current) return;
-    //   const Konva = (await import("konva")).default;
-
-    // const image = new Image()
-    // image.src =
-
-    const stage = new Konva.Stage({
-      container: containerRef.current,
-      width: sceneWidth,
-      height: sceneHeight,
-    });
-    konvaStageRef.current = stage;
-
-    const layer = new Konva.Layer();
-    stage.add(layer);
-
-    // function to calculate crop values from source image, its visible size and a crop strategy
-    function getCrop(image, size, clipPosition = "center-middle") {
-      const width = size.width;
-      const height = size.height;
-      const aspectRatio = width / height;
-
-      let newWidth;
-      let newHeight;
-
-      const imageRatio = image.width / image.height;
-
-      if (aspectRatio >= imageRatio) {
-        newWidth = image.width;
-        newHeight = image.width / aspectRatio;
-      } else {
-        newWidth = image.height * aspectRatio;
-        newHeight = image.height;
-      }
-
-      let x = 0;
-      let y = 0;
-      if (clipPosition === "left-top") {
-        x = 0;
-        y = 0;
-      } else if (clipPosition === "left-middle") {
-        x = 0;
-        y = (image.height - newHeight) / 2;
-      } else if (clipPosition === "left-bottom") {
-        x = 0;
-        y = image.height - newHeight;
-      } else if (clipPosition === "center-top") {
-        x = (image.width - newWidth) / 2;
-        y = 0;
-      } else if (clipPosition === "center-middle") {
-        x = (image.width - newWidth) / 2;
-        y = (image.height - newHeight) / 2;
-      } else if (clipPosition === "center-bottom") {
-        x = (image.width - newWidth) / 2;
-        y = image.height - newHeight;
-      } else if (clipPosition === "right-top") {
-        x = image.width - newWidth;
-        y = 0;
-      } else if (clipPosition === "right-middle") {
-        x = image.width - newWidth;
-        y = (image.height - newHeight) / 2;
-      } else if (clipPosition === "right-bottom") {
-        x = image.width - newWidth;
-        y = image.height - newHeight;
-      } else if (clipPosition === "scale") {
-        x = 0;
-        y = 0;
-        newWidth = width;
-        newHeight = height;
-      } else {
-        console.error(
-          new Error("Unknown clip position property - " + clipPosition),
-        );
-      }
-
-      return {
-        cropX: x,
-        cropY: y,
-        cropWidth: newWidth,
-        cropHeight: newHeight,
-      };
-    }
-
-    // function to apply crop
-    function applyCrop(pos) {
-      const img = layer.findOne(".image");
-      img.setAttr("lastCropUsed", pos);
-      const crop = getCrop(
-        img.image(),
-        { width: img.width(), height: img.height() },
-        pos,
-      );
-      img.setAttrs(crop);
-    }
-
-    Konva.Image.fromURL(currentImage.src, img => {
-      img.setAttrs({
-        // width: 300,
-        // height: 100,
-        x: 80,
-        y: 100,
-        name: "image",
-        draggable: true,
-      });
-      layer.add(img);
-      // apply default left-top crop
-      applyCrop("center-middle");
-
-      const tr = new Konva.Transformer({
-        nodes: [img],
-        keepRatio: false,
-        flipEnabled: false,
-        rotateEnabled: false,
-        boundBoxFunc: (oldBox, newBox) => {
-          if (Math.abs(newBox.width) < 10 || Math.abs(newBox.height) < 10) {
-            return oldBox;
-          }
-          return newBox;
-        },
-      });
-
-      layer.add(tr);
-
-      img.on("transform", () => {
-        // reset scale on transform
-        img.setAttrs({
-          scaleX: 1,
-          scaleY: 1,
-          width: img.width() * img.scaleX(),
-          height: img.height() * img.scaleY(),
-        });
-        applyCrop(img.getAttr("lastCropUsed"));
-      });
-    });
-
-    // document.querySelector("#clip").onchange = e => {
-    //   applyCrop(e.target.value);
-    // };
-    fitStageIntoParentContainer();
-    window.addEventListener("resize", fitStageIntoParentContainer);
-    return () => {
-      window.removeEventListener("resize", fitStageIntoParentContainer);
-    };
-  }, []);
   return (
     <div
-      className="w-full h-full flex justify-center items-center"
+      className="w-full h-full flex justify-center items-center relative"
       ref={parentRef}
       // onClick={() => {
       //   console.log("canvas clikc");
@@ -222,7 +33,14 @@ export default function Canvas({}: Props) {
       //   console.log(data, attrs);
       // }}
     >
-      <div ref={containerRef} className="bg-white rounded-md shadow-sm"></div>
+      {isLoading && <p className="absolute">Loading</p>}
+      <div
+        ref={containerRef}
+        className={cx(
+          "bg-white rounded-md shadow-sm transition-all",
+          isLoading ? "invisible scale-90" : "visible scale-100",
+        )}
+      />
       {/* <select value={crop} onChange={e => setCrop(e.target.value as CROP)}>
         {Object.values(CROP).map(value => (
           <option value={value} key={value}>

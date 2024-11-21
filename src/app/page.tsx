@@ -1,10 +1,10 @@
 "use client";
 import Image from "next/image";
-import { Logo } from "@/components/icons";
 import { Button, ImageUpload } from "@/components/ui";
 import useImageStore from "@/hooks/useImageStore";
 import { ImageType } from "@/types/image";
 import { useRouter } from "next/navigation";
+import { Logo } from "@/components/logo";
 
 const IMAGES = [
   {
