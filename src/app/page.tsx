@@ -1,17 +1,35 @@
 "use client";
+import Image from "next/image";
 import { Logo } from "@/components/icons";
 import { Button, ImageUpload } from "@/components/ui";
-import Image from "next/image";
-import { useState } from "react";
+import useImageStore from "@/hooks/useImageStore";
+import { ImageType } from "@/types/image";
+import { useRouter } from "next/navigation";
 
 const IMAGES = [
-  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-03.webp",
-  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/man-02.webp",
-  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-02.webp",
+  {
+    id: "1",
+    src: "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-03.webp",
+  },
+  {
+    id: "2",
+    src: "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/man-02.webp",
+  },
+  {
+    id: "3",
+    src: "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-02.webp",
+  },
 ];
 
 export default function Home() {
-  const [imageURL, setImageURL] = useState("");
+  const addImage = useImageStore(state => state.addImage);
+  const router = useRouter();
+
+  const addImageAndRedirect = (image: ImageType) => {
+    addImage(image);
+    console.log({ image });
+    router.push("/resize");
+  };
 
   const handleChange = (file: File) => {
     if (!file) return;
@@ -19,10 +37,13 @@ export default function Home() {
     reader.readAsDataURL(file);
 
     reader.onloadend = () => {
-      if (reader.result) setImageURL(reader.result.toString());
+      if (reader.result)
+        addImageAndRedirect({
+          id: crypto.randomUUID(),
+          src: reader.result.toString(),
+        });
     };
   };
-  console.log(imageURL);
 
   return (
     <div className="w-full h-full flex items-center justify-center">
@@ -37,18 +58,18 @@ export default function Home() {
             </p>
           </div>
           <div className="flex gap-4">
-            {IMAGES.map((src, index) => (
+            {IMAGES.map(image => (
               <Button
-                key={index}
+                key={image.id}
                 className="size-12 shadow-md"
                 size="icon"
-                onClick={() => setImageURL(src)}>
+                onClick={() => addImageAndRedirect(image)}>
                 <Image
                   alt=""
                   width={100}
                   height={100}
-                  src={src}
-                  className="size-full rounded-lg object-cover"
+                  src={image.src}
+                  className="size-full rounded-lg object-cover bg-gray-50"
                 />
               </Button>
             ))}

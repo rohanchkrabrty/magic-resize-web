@@ -1,6 +1,8 @@
 "use client";
+import useImageStore from "@/hooks/useImageStore";
 import Konva from "konva";
 import { Stage } from "konva/lib/Stage";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 type Props = {};
@@ -16,12 +18,15 @@ enum CROP {
 }
 
 export default function Canvas({}: Props) {
+  const currentImage = useImageStore(state => state.currentImage);
+  const router = useRouter();
+
   const containerRef = useRef<HTMLDivElement>(null);
   const parentRef = useRef<HTMLDivElement>(null);
   const konvaStageRef = useRef<Stage>();
   const [crop, setCrop] = useState<CROP>(CROP.CENTER_MIDDLE);
-  const sceneWidth = 1728;
-  const sceneHeight = 576;
+  const sceneWidth = 1000;
+  const sceneHeight = 1000;
 
   function fitStageIntoParentContainer() {
     console.log("canvas resized");
@@ -44,10 +49,15 @@ export default function Canvas({}: Props) {
     konvaStageRef.current.height(sceneHeight * scale);
     konvaStageRef.current.scale({ x: scale, y: scale });
   }
-
   useEffect(() => {
+    if (!currentImage?.src) return router.push("/");
+
     if (!containerRef.current) return;
     //   const Konva = (await import("konva")).default;
+
+    // const image = new Image()
+    // image.src =
+
     const stage = new Konva.Stage({
       container: containerRef.current,
       width: sceneWidth,
@@ -137,10 +147,10 @@ export default function Canvas({}: Props) {
       img.setAttrs(crop);
     }
 
-    Konva.Image.fromURL("https://konvajs.org/assets/darth-vader.jpg", img => {
+    Konva.Image.fromURL(currentImage.src, img => {
       img.setAttrs({
-        width: 300,
-        height: 100,
+        // width: 300,
+        // height: 100,
         x: 80,
         y: 100,
         name: "image",
@@ -188,30 +198,31 @@ export default function Canvas({}: Props) {
   }, []);
   return (
     <div
-      className="w-full h-full flex justify-center bg-red-50 items-center overflow-hidden"
+      className="w-full h-full flex justify-center items-center"
       ref={parentRef}
-      onClick={() => {
-        console.log("canvas clikc");
-        if (!konvaStageRef.current) return;
-        const layer = konvaStageRef.current.getLayers()[0];
-        const img = layer.findOne(".image");
-        const attrs = img?.attrs;
-        const data = konvaStageRef.current?.toDataURL({
-          pixelRatio: 1, // or other value you need
-          x: attrs.x,
-          y: attrs.y,
-          width:
-            attrs.x + attrs.width > sceneWidth
-              ? sceneWidth - attrs.width - attrs.x
-              : attrs.width,
-          height:
-            attrs.y + attrs.height > sceneHeight
-              ? sceneHeight - attrs.height - attrs.y
-              : attrs.height,
-        });
-        console.log(data, attrs);
-      }}>
-      <div ref={containerRef} className="bg-white"></div>
+      // onClick={() => {
+      //   console.log("canvas clikc");
+      //   if (!konvaStageRef.current) return;
+      //   const layer = konvaStageRef.current.getLayers()[0];
+      //   const img = layer.findOne(".image");
+      //   const attrs = img?.attrs;
+      //   const data = konvaStageRef.current?.toDataURL({
+      //     pixelRatio: 1, // or other value you need
+      //     x: attrs.x,
+      //     y: attrs.y,
+      //     width:
+      //       attrs.x + attrs.width > sceneWidth
+      //         ? sceneWidth - attrs.width - attrs.x
+      //         : attrs.width,
+      //     height:
+      //       attrs.y + attrs.height > sceneHeight
+      //         ? sceneHeight - attrs.height - attrs.y
+      //         : attrs.height,
+      //   });
+      //   console.log(data, attrs);
+      // }}
+    >
+      <div ref={containerRef} className="bg-white rounded-md shadow-sm"></div>
       {/* <select value={crop} onChange={e => setCrop(e.target.value as CROP)}>
         {Object.values(CROP).map(value => (
           <option value={value} key={value}>
