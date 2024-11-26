@@ -3,6 +3,7 @@
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { cx } from "class-variance-authority";
+import { CaretDown, Check } from "@phosphor-icons/react/dist/ssr";
 import { Spinner } from "./spinner";
 
 type SelectPropsType<T> = {
@@ -40,13 +41,16 @@ const Select = <T,>({
         )}>
         <SelectPrimitive.Value placeholder={placeholder} />
         <SelectPrimitive.Icon asChild>
-          {isLoading ? <Spinner theme="gray" /> : null}
+          {isLoading ? <Spinner theme="gray" /> : <CaretDown />}
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
+          position="popper"
+          side="bottom"
+          sideOffset={0}
           className={cx(
-            "w-full relative z-50 max-h-96 overflow-auto rounded-md border bg-white text-gray-900 shadow-md",
+            "relative z-50 h-[400px] overflow-auto rounded-md border bg-white text-gray-900 shadow-md w-[var(--radix-select-trigger-width)] rounded-t-none",
           )}>
           <SelectPrimitive.Viewport className="p-1">
             {options.map(option => (
@@ -57,7 +61,9 @@ const Select = <T,>({
                   "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-gray-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
                 )}>
                 <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                  <SelectPrimitive.ItemIndicator></SelectPrimitive.ItemIndicator>
+                  <SelectPrimitive.ItemIndicator>
+                    <Check />
+                  </SelectPrimitive.ItemIndicator>
                 </span>
                 <SelectPrimitive.ItemText>
                   {option.value}
