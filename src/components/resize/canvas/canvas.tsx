@@ -4,10 +4,10 @@ import { cx } from "class-variance-authority";
 import { useStore } from "@/hooks/store";
 import { ImageLayer } from "./image-layer";
 
-export const Canvas = () => {
+export default function Canvas() {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const image = useStore(state => state.image);
   const canvas = useStore(state => state.canvas);
+  const image = useStore(state => state.image);
   const isResizing = useStore(state => state.isResizing);
 
   const resizeCanvas = () => {
@@ -37,12 +37,13 @@ export const Canvas = () => {
   }, [canvas]);
 
   return (
-    <div ref={canvasRef} className="origin-center scale-in">
+    <div ref={canvasRef} className="fade-in origin-center">
       <Stage
         width={canvas.width}
         height={canvas.height}
         className={cx(
           "bg-white background-dotted rounded-md shadow-sm transition-all",
+          image ? "visible scale-100" : "invisible scale-90",
           isResizing && "background-pulse",
         )}>
         <Layer>
@@ -51,4 +52,4 @@ export const Canvas = () => {
       </Stage>
     </div>
   );
-};
+}
