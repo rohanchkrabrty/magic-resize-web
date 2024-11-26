@@ -18,17 +18,20 @@ import { usePresets, useResize } from "@/hooks/queries";
 import { Preset } from "@/types/api";
 import useStore from "@/hooks/useStore";
 import { cropImage, downloadImage, loadImage } from "@/lib/util";
+import { Tooltip, TooltipProvider } from "./ui/tootlip";
 
 type ActionType =
   | {
       icon: Icon;
       action: "align";
       align: ImageAlignment;
+      label: string;
     }
   | {
       icon: Icon;
       action: "reset";
       align: undefined;
+      label: string;
     };
 const ActionButtons: ActionType[][] = [
   [
@@ -36,16 +39,19 @@ const ActionButtons: ActionType[][] = [
       icon: AlignLeftSimple,
       action: "align",
       align: ImageAlignment.LEFT,
+      label: "Align Left",
     },
     {
       icon: AlignCenterHorizontalSimple,
       action: "align",
       align: ImageAlignment.HORIZONTAL_CENTER,
+      label: "Align Horizontal Centers",
     },
     {
       icon: AlignRightSimple,
       action: "align",
       align: ImageAlignment.RIGHT,
+      label: "Align Right",
     },
   ],
   [
@@ -53,16 +59,19 @@ const ActionButtons: ActionType[][] = [
       icon: AlignTopSimple,
       action: "align",
       align: ImageAlignment.TOP,
+      label: "Align Top",
     },
     {
       icon: AlignCenterVerticalSimple,
       action: "align",
       align: ImageAlignment.VERTICAL_CENTER,
+      label: "Align Vertical Centers",
     },
     {
       icon: AlignBottomSimple,
       action: "align",
       align: ImageAlignment.BOTTOM,
+      label: "Align Bottom",
     },
   ],
   [
@@ -70,6 +79,7 @@ const ActionButtons: ActionType[][] = [
       icon: ArrowCounterClockwise,
       action: "reset",
       align: undefined,
+      label: "Reset Position",
     },
   ],
 ];
@@ -116,31 +126,37 @@ export default function Sidebar() {
           Position
         </p>
         <div className="flex gap-2 self-stretch justify-between">
-          {ActionButtons.map((buttons, rowIndex) => (
-            <div className="flex" key={rowIndex}>
-              {buttons.map(({ icon: Icon, action, align }, colIndex) => (
-                <Button
-                  size="icon"
-                  disabled={isImageResizing}
-                  variant="secondary"
-                  onClick={() => {
-                    if (action === "align" && align) return alignImage(align);
-                    return resetImage();
-                  }}
-                  className={cx(
-                    "p-1 w-8 h-8 focus-visible:z-10 focus-visible:ring-offset-0",
-                    "rounded-l-none rounded-r-none",
-                    colIndex === 0 && "!rounded-l-lg border-r-0",
-                    colIndex === buttons.length - 1 &&
-                      "!rounded-r-lg border-l-0",
-                    buttons.length === 1 && "border-l border-r",
-                  )}
-                  key={colIndex}>
-                  <Icon />
-                </Button>
-              ))}
-            </div>
-          ))}
+          <TooltipProvider>
+            {ActionButtons.map((buttons, rowIndex) => (
+              <div className="flex" key={rowIndex}>
+                {buttons.map(
+                  ({ icon: Icon, action, align, label }, colIndex) => (
+                    <Tooltip key={colIndex} content={label} align="center">
+                      <Button
+                        size="icon"
+                        disabled={isImageResizing}
+                        variant="secondary"
+                        onClick={() => {
+                          if (action === "align" && align)
+                            return alignImage(align);
+                          return resetImage();
+                        }}
+                        className={cx(
+                          "p-1 w-8 h-8 focus-visible:z-10 focus-visible:ring-offset-0",
+                          "rounded-l-none rounded-r-none",
+                          colIndex === 0 && "!rounded-l-lg border-r-0",
+                          colIndex === buttons.length - 1 &&
+                            "!rounded-r-lg border-l-0",
+                          buttons.length === 1 && "border-l border-r",
+                        )}>
+                        <Icon />
+                      </Button>
+                    </Tooltip>
+                  ),
+                )}
+              </div>
+            ))}
+          </TooltipProvider>
         </div>
       </div>
       <div className="flex flex-col">
