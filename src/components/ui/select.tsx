@@ -25,7 +25,6 @@ const Select = <T,>({
   isLoading = false,
   disabled = false,
 }: SelectPropsType<T>) => {
-  console.log("select data ->", { options, defaultValue });
   return (
     <SelectPrimitive.Root
       disabled={isLoading || disabled}

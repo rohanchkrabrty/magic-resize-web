@@ -21,7 +21,8 @@ export function fileToDataURL(file: File) {
 export function downloadImage(src: string) {
   const anchor = document.createElement("a");
   anchor.href = src;
-  anchor.download = `resized-${Date.now()}.jpg`;
+  anchor.target = "_blank";
+  // anchor.download = `resized-${Date.now()}.jpg`;
   anchor.style.display = "none";
 
   document.body.appendChild(anchor);

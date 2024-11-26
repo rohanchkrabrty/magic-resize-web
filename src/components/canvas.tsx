@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { Stage, Layer, Image, Transformer } from "react-konva";
-import { useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
 import Konva from "konva";
 import useStore from "@/hooks/useStore";
@@ -8,14 +7,10 @@ import { getImageCrop } from "@/lib/util";
 
 const Canvas = () => {
   const { canvas, image, updateImage, isResizing } = useStore();
-  const router = useRouter();
 
   const imageRef = useRef<Konva.Image>(null);
   const trRef = useRef<Konva.Transformer>(null);
-
-  useEffect(() => {
-    if (!image) return router.push("/");
-  }, [image]);
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     //attach transformer to image node
@@ -54,78 +49,104 @@ const Canvas = () => {
       y: Math.round(imageRef.current.y()),
     });
   }
+  const resizeCanvas = () => {
+    const parent = canvasRef.current?.parentElement;
+
+    if (!parent || !canvasRef.current) return;
+
+    const baseWidth = canvas.width;
+    const baseHeight = canvas.height;
+
+    const scaleX = parent.clientWidth / baseWidth;
+    const scaleY = parent.clientHeight / baseHeight;
+    const scale = Math.min(scaleX, scaleY);
+    console.log({ baseWidth, baseHeight });
+
+    canvasRef.current.style.transform = `scale(${scale})`;
+    canvasRef.current.style.width = `${baseWidth}px`;
+    canvasRef.current.style.height = `${baseHeight}px`;
+  };
+
+  useEffect(() => {
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, [canvas]);
 
   return (
-    <Stage
-      width={canvas.width}
-      height={canvas.height}
-      className={cx(
-        "bg-white background-dotted rounded-md shadow-sm transition-all",
-        image ? "visible scale-100" : "invisible scale-90",
-        isResizing && "background-pulse",
-      )}>
-      <Layer>
-        {image && (
-          <>
-            <Image
-              ref={imageRef}
-              image={image.img}
-              x={image.x}
-              y={image.y}
-              width={image.width}
-              height={image.height}
-              draggable
-              strokeEnabled={false}
-              shadowEnabled={false}
-              fill="white"
-              alt=""
-              onTransform={() => {
-                if (!imageRef.current) return;
-                // reset scale on transform
-                imageRef.current.setAttrs({
-                  scaleX: 1,
-                  scaleY: 1,
-                  width: Math.round(
-                    imageRef.current.width() * imageRef.current.scaleX(),
-                  ),
-                  height: Math.round(
-                    imageRef.current.height() * imageRef.current.scaleY(),
-                  ),
-                });
-                applyCrop();
-              }}
-              onTransformEnd={syncCanvasData}
-              onDragEnd={syncCanvasData}
-              onClick={e => {
-                e.cancelBubble = true;
-                console.log("select");
-              }}
-            />
-            <Transformer
-              ref={trRef}
-              keepRatio={false}
-              flipEnabled={false}
-              rotateEnabled={false}
-              //   borderEnabled={false}
-              borderStroke="#8300ff"
-              borderStrokeWidth={1.5}
-              anchorCornerRadius={100}
-              anchorStrokeWidth={1.5}
-              anchorStroke="#8300ff"
-              boundBoxFunc={(oldBox, newBox) => {
-                if (
-                  Math.abs(newBox.width) < 10 ||
-                  Math.abs(newBox.height) < 10
-                ) {
-                  return oldBox;
-                }
-                return newBox;
-              }}
-            />
-          </>
-        )}
-      </Layer>
-    </Stage>
+    <div ref={canvasRef} className="origin-center">
+      <Stage
+        width={canvas.width}
+        height={canvas.height}
+        className={cx(
+          "bg-white background-dotted rounded-md shadow-sm transition-all",
+          image ? "visible scale-100" : "invisible scale-90",
+          isResizing && "background-pulse",
+        )}>
+        <Layer>
+          {image && (
+            <>
+              <Image
+                ref={imageRef}
+                image={image.img}
+                x={image.x}
+                y={image.y}
+                width={image.width}
+                height={image.height}
+                draggable
+                strokeEnabled={false}
+                shadowEnabled={false}
+                fill="white"
+                alt=""
+                onTransform={() => {
+                  if (!imageRef.current) return;
+                  imageRef.current.setAttrs({
+                    scaleX: 1,
+                    scaleY: 1,
+                    width: Math.round(
+                      imageRef.current.width() * imageRef.current.scaleX(),
+                    ),
+                    height: Math.round(
+                      imageRef.current.height() * imageRef.current.scaleY(),
+                    ),
+                  });
+                  applyCrop();
+                }}
+                onTransformEnd={syncCanvasData}
+                onDragEnd={syncCanvasData}
+                onClick={e => {
+                  e.cancelBubble = true;
+                  console.log("select");
+                }}
+              />
+              <Transformer
+                ref={trRef}
+                keepRatio={false}
+                flipEnabled={false}
+                rotateEnabled={false}
+                borderStroke="#8300ff"
+                borderStrokeWidth={1.5}
+                anchorCornerRadius={100}
+                anchorStrokeWidth={1.5}
+                anchorStroke="#8300ff"
+                boundBoxFunc={(oldBox, newBox) => {
+                  if (
+                    Math.abs(newBox.width) < 10 ||
+                    Math.abs(newBox.height) < 10
+                  ) {
+                    return oldBox;
+                  }
+                  return newBox;
+                }}
+              />
+            </>
+          )}
+        </Layer>
+      </Stage>
+    </div>
   );
 };
 

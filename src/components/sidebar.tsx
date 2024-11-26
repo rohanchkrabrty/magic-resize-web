@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./ui";
 import { Logo } from "./logo";
 import {
@@ -19,6 +19,7 @@ import { Preset } from "@/types/api";
 import useStore from "@/hooks/useStore";
 import { cropImage, downloadImage, loadImage } from "@/lib/util";
 import { Tooltip, TooltipProvider } from "./ui/tootlip";
+import { useRouter } from "next/navigation";
 
 type ActionType =
   | {
@@ -107,6 +108,7 @@ export default function Sidebar() {
   const [selectedpreset, setSelectedPreset] = useState<Preset>(defaultPreset);
   const presets = usePresets([defaultPreset]);
   const resize = useResize();
+  const router = useRouter();
   const isImageResizing = resize.loading || isResizing;
 
   const cannotResizeImage =
@@ -116,7 +118,10 @@ export default function Sidebar() {
     image.y === 0;
 
   const canRegenerate = cannotResizeImage && originalImage?.id !== image.id;
-  console.log(selectedpreset);
+
+  useEffect(() => {
+    if (!image) return router.push("/");
+  }, [image]);
 
   return (
     <div className="h-full flex-[300px] flex-shrink-0 margin-10 bg-white shadow-sm rounded-3xl flex flex-col px-6 pb-7 pt-6 gap-8">
@@ -237,8 +242,7 @@ export default function Sidebar() {
               className="flex-1"
               variant="secondary"
               onClick={() => {
-                console.log("downloading image", image.img);
-                console.log("imaeg -> ", image.src);
+                console.log("image -> ", image.src);
                 downloadImage(image.src);
               }}>
               Download
