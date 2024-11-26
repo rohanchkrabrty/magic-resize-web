@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { ReactNode } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { cx } from "class-variance-authority";
 import { CaretDown, Check } from "@phosphor-icons/react/dist/ssr";
@@ -14,6 +14,7 @@ type SelectPropsType<T> = {
   className?: string;
   isLoading?: boolean;
   disabled?: boolean;
+  item?: (value: T & { value: string }) => ReactNode;
 };
 
 export const Select = <T,>({
@@ -24,6 +25,7 @@ export const Select = <T,>({
   className,
   isLoading = false,
   disabled = false,
+  item = ({ value }) => value,
 }: SelectPropsType<T>) => {
   return (
     <SelectPrimitive.Root
@@ -64,9 +66,9 @@ export const Select = <T,>({
                     <Check />
                   </SelectPrimitive.ItemIndicator>
                 </span>
-                <SelectPrimitive.ItemText>
-                  {option.value}
-                </SelectPrimitive.ItemText>
+                {/* <SelectPrimitive.ItemText asChild> */}
+                {item(option)}
+                {/* </SelectPrimitive.ItemText> */}
               </SelectPrimitive.Item>
             ))}
           </SelectPrimitive.Viewport>

@@ -37,13 +37,12 @@ export const Canvas = () => {
   }, [canvas]);
 
   return (
-    <div ref={canvasRef} className="origin-center">
+    <div ref={canvasRef} className="origin-center scale-in">
       <Stage
         width={canvas.width}
         height={canvas.height}
         className={cx(
           "bg-white background-dotted rounded-md shadow-sm transition-all",
-          image ? "visible scale-100" : "invisible scale-90",
           isResizing && "background-pulse",
         )}>
         <Layer>

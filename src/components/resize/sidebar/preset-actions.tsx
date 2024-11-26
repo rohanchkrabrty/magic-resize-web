@@ -4,6 +4,7 @@ import { useStore } from "@/hooks/store";
 import { DEFAULT_PRESET } from "@/lib/data";
 import { Preset } from "@/types/api";
 import { usePresets } from "@/hooks/queries";
+import { SelectItemText } from "@radix-ui/react-select";
 
 type PropsType = {
   disabled?: boolean;
@@ -33,6 +34,14 @@ export function PresetActions({ disabled = false }: PropsType) {
         className="rounded-b-none z-10"
         isLoading={presets.loading}
         disabled={disabled}
+        item={value => (
+          <div className="flex items-baseline gap-1 justify-between w-full">
+            <SelectItemText>{value.name}</SelectItemText>
+            <span className="text-gray-500 text-xs">
+              {value.aspect_ratio_label}
+            </span>
+          </div>
+        )}
       />
       <div className="flex gap-2 text-sm self-stretch justify-between text-gray-500 font-medium p-1.5 px-3 bg-gray-50 border border-gray-200 rounded-b-md border-t-0">
         <p>W {selectedpreset.width}px</p>

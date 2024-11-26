@@ -13,6 +13,28 @@
   .background-pulse {
     animation: backgroundPulse 2s infinite ease-in-out;
   }
+  .slide-in {
+    animation: slideIn 150ms forwards ease-out;
+    animation-delay: 200ms;
+    transform: translateX(-400px);
+  }
+  .scale-in {
+    animation: scaleIn 150ms forwards ease-out;
+    animation-delay: 200ms;
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  @keyframes slideIn {
+    to {
+      transform: translateX(0px);
+    }
+  }
+  @keyframes scaleIn {
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
   @keyframes backgroundPulse {
     0% {
       background-color: theme(colors.white);
