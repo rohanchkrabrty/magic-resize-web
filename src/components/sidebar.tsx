@@ -227,11 +227,13 @@ export default function Sidebar() {
           <div className="flex w-full gap-2">
             <Button
               variant="secondary"
+              disabled={isImageResizing}
               onClick={resetImageToOriginal}
               className="flex-1">
               Reset to default
             </Button>
             <Button
+              disabled={isImageResizing}
               className="flex-1"
               variant="secondary"
               onClick={() => {

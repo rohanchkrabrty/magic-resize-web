@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Logo } from "@/components/logo";
 import useStore from "@/hooks/useStore";
 import { fileToDataURL, loadImage } from "@/lib/util";
+import { useState } from "react";
 
 const IMAGES = [
   "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-03.webp",
@@ -14,10 +15,12 @@ const IMAGES = [
 ];
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(false);
   const setImage = useStore(state => state.setImage);
   const router = useRouter();
 
   const addImageAndRedirect = (src: string) => {
+    setIsLoading(true);
     router.prefetch("/resize");
     console.log({ src });
     loadImage(src).then(data => {
@@ -28,6 +31,7 @@ export default function Home() {
 
   const handleChange = (file: File) => {
     if (!file) return;
+    setIsLoading(true);
     fileToDataURL(file).then(src => {
       addImageAndRedirect(src);
     });
@@ -37,7 +41,7 @@ export default function Home() {
     <div className="w-full h-full flex items-center justify-center">
       <div className="shadow-sm border border-gray-200 p-8 bg-white rounded-2xl w-[500px] gap-10 flex flex-col">
         <Logo />
-        <ImageUpload onChange={handleChange} />
+        <ImageUpload onChange={handleChange} isLoading={isLoading} />
         <div className="flex justify-between items-center">
           <div className="text-sm font-medium">
             <p>Don&apos;t have a photo?</p>
@@ -51,6 +55,7 @@ export default function Home() {
                 key={index}
                 className="size-12 shadow-md"
                 size="icon"
+                disabled={isLoading}
                 onClick={() => addImageAndRedirect(src)}>
                 <Image
                   alt=""
