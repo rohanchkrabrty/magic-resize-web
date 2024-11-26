@@ -1,8 +1,3 @@
-export type ImageType = {
-  id: string;
-  src: string;
-};
-
 export enum ImageAlignment {
   LEFT = "align-left",
   HORIZONTAL_CENTER = "align-horizontal-center",

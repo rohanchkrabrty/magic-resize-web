@@ -1,5 +1,5 @@
-import { Preset } from "@/types/api";
 import { useState, useEffect } from "react";
+import { Preset } from "@/types/api";
 
 export const usePresets = (defaultValue: Preset[] = []) => {
   const [data, setData] = useState<Preset[]>(defaultValue);
@@ -27,13 +27,7 @@ export const usePresets = (defaultValue: Preset[] = []) => {
 export const useResize = () => {
   const [loading, setLoading] = useState(false);
 
-  async function execute({
-    image,
-    left,
-    right,
-    top,
-    bottom,
-  }: {
+  async function execute(data: {
     image: string;
     left: string;
     right: string;
@@ -43,11 +37,7 @@ export const useResize = () => {
     setLoading(true);
 
     const formData = new FormData();
-    formData.append("image", image);
-    formData.append("left", left);
-    formData.append("right", right);
-    formData.append("top", top);
-    formData.append("bottom", bottom);
+    Object.entries(data).forEach(([key, value]) => formData.append(key, value));
 
     return fetch("/api/resize", {
       method: "POST",

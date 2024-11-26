@@ -1,18 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import { Button, ImageUpload } from "@/components/ui";
-import { useRouter } from "next/navigation";
-import { Logo } from "@/components/logo";
-import useStore from "@/hooks/useStore";
-import { fileToDataURL, loadImage } from "@/lib/util";
 import { useState } from "react";
-
-const IMAGES = [
-  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-03.webp",
-  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/man-02.webp",
-  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-02.webp",
-];
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Button, ImageUpload, Logo } from "@/components/ui";
+import { fileToDataURL, loadImage } from "@/lib/util";
+import { DEMO_IMAGES } from "@/lib/data";
+import { useStore } from "@/hooks/store";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +18,7 @@ export default function Home() {
     router.prefetch("/resize");
     console.log({ src });
     loadImage(src).then(data => {
-      setImage(data);
+      setImage(data, true);
       router.push("/resize");
     });
   };
@@ -50,7 +44,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex gap-4">
-            {IMAGES.map((src, index) => (
+            {DEMO_IMAGES.map((src, index) => (
               <Button
                 key={index}
                 className="size-12 shadow-md"

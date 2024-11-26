@@ -16,7 +16,7 @@ type SelectPropsType<T> = {
   disabled?: boolean;
 };
 
-const Select = <T,>({
+export const Select = <T,>({
   options,
   onValueChange,
   defaultValue,
@@ -75,5 +75,3 @@ const Select = <T,>({
     </SelectPrimitive.Root>
   );
 };
-
-export default Select;

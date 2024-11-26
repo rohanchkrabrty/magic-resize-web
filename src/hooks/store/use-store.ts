@@ -3,11 +3,12 @@ import { devtools } from "zustand/middleware";
 import { ImageAlignment } from "@/types/image";
 import { ImageType, StoreType } from "@/types/store";
 import { getDefaultImageDimension } from "@/lib/util";
+import { DEFAULT_PRESET } from "@/lib/data";
 
-const useStore = create(
+export const useStore = create(
   devtools<StoreType>(
     set => ({
-      canvas: { width: 1024, height: 1024 },
+      canvas: { width: DEFAULT_PRESET.width, height: DEFAULT_PRESET.height },
       image: null,
       originalImage: null,
       isResizing: false,
@@ -65,7 +66,7 @@ const useStore = create(
             image: originalImage,
           };
         }),
-      setImage: img =>
+      setImage: (img, forceReset = false) =>
         set(state => {
           const { canvas, originalImage, image } = state;
 
@@ -82,6 +83,12 @@ const useStore = create(
               canvas.height,
             ),
           };
+          if (forceReset)
+            return {
+              image: data,
+              originalImage: data,
+            };
+
           let newOriginalImage = originalImage;
           if (!originalImage) newOriginalImage = data;
           else if (originalImage.id === image?.id) newOriginalImage = image;
@@ -126,5 +133,3 @@ const useStore = create(
     { name: "zustand" },
   ),
 );
-
-export default useStore;

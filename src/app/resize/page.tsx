@@ -1,12 +1,15 @@
 "use client";
 
-import Sidebar from "@/components/sidebar";
-import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
+import { Sidebar } from "@/components/resize";
 
-const Canvas = dynamic(() => import("@/components/canvas"), {
-  ssr: false,
-});
+const Canvas = dynamic(
+  () => import("@/components/resize").then(module => module.Canvas),
+  {
+    ssr: false,
+  },
+);
 
 export default function Home() {
   return (
