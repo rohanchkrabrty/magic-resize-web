@@ -1,48 +1,36 @@
 "use client";
+
 import Image from "next/image";
 import { Button, ImageUpload } from "@/components/ui";
-import useImageStore from "@/hooks/useImageStore";
-import { ImageType } from "@/types/image";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/logo";
+import useStore from "@/hooks/useStore";
+import { fileToDataURL, loadImage } from "@/lib/util";
 
 const IMAGES = [
-  {
-    id: "1",
-    src: "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-03.webp",
-  },
-  {
-    id: "2",
-    src: "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/man-02.webp",
-  },
-  {
-    id: "3",
-    src: "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-02.webp",
-  },
+  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-03.webp",
+  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/man-02.webp",
+  "https://magicstudio-public.s3.amazonaws.com/headshots/assets/poses/512x768/woman-02.webp",
 ];
 
 export default function Home() {
-  const addImage = useImageStore(state => state.addImage);
+  const setImage = useStore(state => state.setImage);
   const router = useRouter();
 
-  const addImageAndRedirect = (image: ImageType) => {
-    addImage(image);
-    console.log({ image });
-    router.push("/resize");
+  const addImageAndRedirect = (src: string) => {
+    router.prefetch("/resize");
+    console.log({ src });
+    loadImage(src).then(data => {
+      setImage(data);
+      router.push("/resize");
+    });
   };
 
   const handleChange = (file: File) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onloadend = () => {
-      if (reader.result)
-        addImageAndRedirect({
-          id: crypto.randomUUID(),
-          src: reader.result.toString(),
-        });
-    };
+    fileToDataURL(file).then(src => {
+      addImageAndRedirect(src);
+    });
   };
 
   return (
@@ -58,17 +46,17 @@ export default function Home() {
             </p>
           </div>
           <div className="flex gap-4">
-            {IMAGES.map(image => (
+            {IMAGES.map((src, index) => (
               <Button
-                key={image.id}
+                key={index}
                 className="size-12 shadow-md"
                 size="icon"
-                onClick={() => addImageAndRedirect(image)}>
+                onClick={() => addImageAndRedirect(src)}>
                 <Image
                   alt=""
                   width={100}
                   height={100}
-                  src={image.src}
+                  src={src}
                   className="size-full rounded-lg object-cover bg-gray-50"
                 />
               </Button>

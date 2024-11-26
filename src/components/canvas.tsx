@@ -1,53 +1,132 @@
-import { useCanvas } from "@/hooks";
-import { ImageAlignment } from "@/types/image";
+import React, { useEffect, useRef } from "react";
+import { Stage, Layer, Image, Transformer } from "react-konva";
+import { useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
+import Konva from "konva";
+import useStore from "@/hooks/useStore";
+import { getImageCrop } from "@/lib/util";
 
-type Props = {};
+const Canvas = () => {
+  const { canvas, image, updateImage, isResizing } = useStore();
+  const router = useRouter();
 
-export default function Canvas({}: Props) {
-  const { parentRef, containerRef, isLoading, align, reset } = useCanvas({});
+  const imageRef = useRef<Konva.Image>(null);
+  const trRef = useRef<Konva.Transformer>(null);
+
+  useEffect(() => {
+    if (!image) return router.push("/");
+  }, [image]);
+
+  useEffect(() => {
+    //attach transformer to image node
+    if (!imageRef.current || !trRef.current || !image) return;
+    trRef.current.nodes([imageRef.current]);
+    applyCrop();
+  }, [image]);
+
+  useEffect(() => {
+    //disable listeners if loading
+    if (!imageRef.current || !trRef.current) return;
+
+    imageRef.current.listening(!isResizing);
+    trRef.current.listening(!isResizing);
+  }, [isResizing]);
+
+  function applyCrop() {
+    if (!imageRef.current) return;
+
+    const image = imageRef.current.image() as HTMLImageElement;
+    if (!image) return;
+
+    const width = imageRef.current.width();
+    const height = imageRef.current.height();
+    const crop = getImageCrop(image, width, height);
+
+    imageRef.current.setAttrs(crop);
+  }
+
+  function syncCanvasData() {
+    if (!imageRef.current) return;
+    updateImage({
+      width: Math.round(imageRef.current.width()),
+      height: Math.round(imageRef.current.height()),
+      x: Math.round(imageRef.current.x()),
+      y: Math.round(imageRef.current.y()),
+    });
+  }
 
   return (
-    <div
-      className="w-full h-full flex justify-center items-center relative"
-      ref={parentRef}
-      // onClick={() => {
-      //   console.log("canvas clikc");
-      //   if (!konvaStageRef.current) return;
-      //   const layer = konvaStageRef.current.getLayers()[0];
-      //   const img = layer.findOne(".image");
-      //   const attrs = img?.attrs;
-      //   const data = konvaStageRef.current?.toDataURL({
-      //     pixelRatio: 1, // or other value you need
-      //     x: attrs.x,
-      //     y: attrs.y,
-      //     width:
-      //       attrs.x + attrs.width > sceneWidth
-      //         ? sceneWidth - attrs.width - attrs.x
-      //         : attrs.width,
-      //     height:
-      //       attrs.y + attrs.height > sceneHeight
-      //         ? sceneHeight - attrs.height - attrs.y
-      //         : attrs.height,
-      //   });
-      //   console.log(data, attrs);
-      // }}
-    >
-      {isLoading && <p className="absolute">Loading</p>}
-      <div
-        ref={containerRef}
-        className={cx(
-          "bg-white rounded-md shadow-sm transition-all",
-          isLoading ? "invisible scale-90" : "visible scale-100",
+    <Stage
+      width={canvas.width}
+      height={canvas.height}
+      className={cx(
+        "bg-white background-dotted rounded-md shadow-sm transition-all",
+        image ? "visible scale-100" : "invisible scale-90",
+        isResizing && "background-pulse",
+      )}>
+      <Layer>
+        {image && (
+          <>
+            <Image
+              ref={imageRef}
+              image={image.img}
+              x={image.x}
+              y={image.y}
+              width={image.width}
+              height={image.height}
+              draggable
+              strokeEnabled={false}
+              shadowEnabled={false}
+              fill="white"
+              alt=""
+              onTransform={() => {
+                if (!imageRef.current) return;
+                // reset scale on transform
+                imageRef.current.setAttrs({
+                  scaleX: 1,
+                  scaleY: 1,
+                  width: Math.round(
+                    imageRef.current.width() * imageRef.current.scaleX(),
+                  ),
+                  height: Math.round(
+                    imageRef.current.height() * imageRef.current.scaleY(),
+                  ),
+                });
+                applyCrop();
+              }}
+              onTransformEnd={syncCanvasData}
+              onDragEnd={syncCanvasData}
+              onClick={e => {
+                e.cancelBubble = true;
+                console.log("select");
+              }}
+            />
+            <Transformer
+              ref={trRef}
+              keepRatio={false}
+              flipEnabled={false}
+              rotateEnabled={false}
+              //   borderEnabled={false}
+              borderStroke="#8300ff"
+              borderStrokeWidth={1.5}
+              anchorCornerRadius={100}
+              anchorStrokeWidth={1.5}
+              anchorStroke="#8300ff"
+              boundBoxFunc={(oldBox, newBox) => {
+                if (
+                  Math.abs(newBox.width) < 10 ||
+                  Math.abs(newBox.height) < 10
+                ) {
+                  return oldBox;
+                }
+                return newBox;
+              }}
+            />
+          </>
         )}
-      />
-      {/* <select value={crop} onChange={e => setCrop(e.target.value as CROP)}>
-        {Object.values(CROP).map(value => (
-          <option value={value} key={value}>
-            {value}
-          </option>
-        ))}
-      </select> */}
-    </div>
+      </Layer>
+    </Stage>
   );
-}
+};
+
+export default Canvas;

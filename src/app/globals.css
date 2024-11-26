@@ -6,4 +6,22 @@
   .text-balance {
     text-wrap: balance;
   }
+  .background-dotted {
+    background-image: radial-gradient(rgb(155, 155, 155) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  .background-pulse {
+    animation: backgroundPulse 2s infinite ease-in-out;
+  }
+  @keyframes backgroundPulse {
+    0% {
+      background-color: theme(colors.white);
+    }
+    50% {
+      background-color: theme(colors.gray.300);
+    }
+    100% {
+      background-color: theme(colors.white);
+    }
+  }
 }

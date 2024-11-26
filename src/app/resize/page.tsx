@@ -4,7 +4,7 @@ import Sidebar from "@/components/sidebar";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-const Canvas = dynamic(() => import("@/components/canvas"), {
+const CanvasContainer = dynamic(() => import("@/components/canvas-container"), {
   ssr: false,
 });
 
@@ -14,7 +14,7 @@ export default function Home() {
       <Sidebar />
       <div className="w-full h-full flex justify-center items-center p-20">
         <Suspense fallback={<div>Loading</div>}>
-          <Canvas />
+          <CanvasContainer />
         </Suspense>
       </div>
     </div>

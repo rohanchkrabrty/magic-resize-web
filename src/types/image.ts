@@ -14,6 +14,7 @@ export enum ImageAlignment {
 
 export enum ImageCrop {
   CENTER_TOP = "center-top",
+  LEFT_TOP = "left-top",
   RIGHT_TOP = "right-top",
   LEFT_MIDDLE = "left-middle",
   CENTER_MIDDLE = "center-middle",

@@ -109,7 +109,7 @@ export function useCanvas({}: Props) {
     konvaStageRef.current.scale({ x: scale, y: scale });
   }
   // function to calculate crop values from source image, its visible size and a crop strategy
-  function getCrop(image, size, cropPosition = ImageCrop.CENTER_BOTTOM) {
+  function getCrop(image, size) {
     const width = size.width;
     const height = size.height;
     const aspectRatio = width / height;
@@ -129,42 +129,40 @@ export function useCanvas({}: Props) {
 
     let x = 0;
     let y = 0;
-    if (cropPosition === "left-top") {
+    if (crop === ImageCrop.LEFT_TOP) {
       x = 0;
       y = 0;
-    } else if (cropPosition === "left-middle") {
+    } else if (crop === "left-middle") {
       x = 0;
       y = (image.height - newHeight) / 2;
-    } else if (cropPosition === "left-bottom") {
+    } else if (crop === "left-bottom") {
       x = 0;
       y = image.height - newHeight;
-    } else if (cropPosition === "center-top") {
+    } else if (crop === "center-top") {
       x = (image.width - newWidth) / 2;
       y = 0;
-    } else if (cropPosition === "center-middle") {
+    } else if (crop === "center-middle") {
       x = (image.width - newWidth) / 2;
       y = (image.height - newHeight) / 2;
-    } else if (cropPosition === "center-bottom") {
+    } else if (crop === "center-bottom") {
       x = (image.width - newWidth) / 2;
       y = image.height - newHeight;
-    } else if (cropPosition === "right-top") {
+    } else if (crop === "right-top") {
       x = image.width - newWidth;
       y = 0;
-    } else if (cropPosition === "right-middle") {
+    } else if (crop === "right-middle") {
       x = image.width - newWidth;
       y = (image.height - newHeight) / 2;
-    } else if (cropPosition === "right-bottom") {
+    } else if (crop === "right-bottom") {
       x = image.width - newWidth;
       y = image.height - newHeight;
-    } else if (cropPosition === "scale") {
+    } else if (crop === "scale") {
       x = 0;
       y = 0;
       newWidth = width;
       newHeight = height;
     } else {
-      console.error(
-        new Error("Unknown clip position property - " + cropPosition),
-      );
+      console.error(new Error("Unknown clip position property - " + crop));
     }
 
     return {
@@ -175,18 +173,13 @@ export function useCanvas({}: Props) {
     };
   }
 
-  function applyCrop(cropPosition: ImageCrop) {
+  function applyCrop() {
     if (!imageRef.current) return;
-    imageRef.current.setAttr("lastCropUsed", cropPosition);
 
-    const crop = getCrop(
-      imageRef.current.image(),
-      {
-        width: imageRef.current.width(),
-        height: imageRef.current.height(),
-      },
-      cropPosition,
-    );
+    const crop = getCrop(imageRef.current.image(), {
+      width: imageRef.current.width(),
+      height: imageRef.current.height(),
+    });
     imageRef.current.setAttrs(crop);
   }
 
@@ -208,8 +201,8 @@ export function useCanvas({}: Props) {
 
   useEffect(() => {
     if (!currentImage?.src) return router.push("/");
-
     if (!containerRef.current) return;
+
     //   const Konva = (await import("konva")).default;
 
     // const image = new Image()
@@ -240,7 +233,7 @@ export function useCanvas({}: Props) {
         strokeEnabled: false,
       });
       layer.add(img);
-      applyCrop(ImageCrop.CENTER_MIDDLE);
+      applyCrop();
 
       const transform = new Konva.Transformer({
         nodes: [img],
@@ -265,7 +258,7 @@ export function useCanvas({}: Props) {
           width: img.width() * img.scaleX(),
           height: img.height() * img.scaleY(),
         });
-        applyCrop(img.getAttr("lastCropUsed"));
+        applyCrop();
       });
       setIsLoading(false);
     });

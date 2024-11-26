@@ -1,5 +1,6 @@
 import { cva, cx, type VariantProps } from "class-variance-authority";
 import { forwardRef } from "react";
+import { Spinner } from "./spinner";
 
 const buttonVariants = cva(
   [
@@ -32,16 +33,32 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  isLoading?: boolean;
+}
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      isLoading = false,
+      children,
+      disabled,
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <button
         className={cx(buttonVariants({ variant, size, className }))}
         ref={ref}
-        {...props}
-      />
+        disabled={isLoading ? true : disabled}
+        {...props}>
+        {children}
+        {isLoading && <Spinner />}
+      </button>
     );
   },
 );
