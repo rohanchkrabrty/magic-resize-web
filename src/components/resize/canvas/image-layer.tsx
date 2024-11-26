@@ -37,10 +37,10 @@ export function ImageLayer() {
 
   useEffect(() => {
     //attach transformer to image node
-    if (!imageRef.current || !trRef.current || !image?.src) return;
-    trRef.current.nodes([imageRef.current]);
+    if (!imageRef.current || !trRef.current || !image) return;
+    if (!trRef.current.nodes().length) trRef.current.nodes([imageRef.current]);
     applyCrop();
-  }, [image?.src]);
+  }, [image]);
 
   if (!image) return null;
   return (
