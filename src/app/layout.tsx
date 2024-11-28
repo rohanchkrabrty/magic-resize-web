@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased bg-gray-100 font-sans`}>
-        <main className="w-full h-screen">{children}</main>
+        <main className="w-full h-screen sm:h-svh">{children}</main>
       </body>
     </html>
   );

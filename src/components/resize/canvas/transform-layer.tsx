@@ -11,7 +11,7 @@ type PropsType = {
 export const TransformLayer = forwardRef<Konva.Transformer, PropsType>(
   ({ disabled }, ref) => {
     const size = useWindowSize();
-    const anchorSize = scale(size.width, 300, 1300, 28, 12);
+    const anchorSize = scale(size.width, 300, 1300, 32, 12);
     const anchorStrokeWidth = scale(size.width, 300, 1300, 4, 1.5);
 
     return (
