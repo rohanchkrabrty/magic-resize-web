@@ -11,6 +11,11 @@ const config: Config = {
     fontFamily: {
       sans: ["var(--font-inter)", ...defaultTheme.fontFamily.sans],
     },
+    screens: {
+      xs: { max: "550px" },
+      sm: { max: "650px" },
+      md: { max: "900px" },
+    },
   },
   plugins: [],
 };

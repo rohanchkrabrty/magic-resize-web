@@ -91,7 +91,7 @@ export function PositionActions({ disabled = false }: PropsType) {
       <p className="uppercase text-[11px] font-semibold text-gray-500 mb-3">
         Position
       </p>
-      <div className="flex gap-2 self-stretch justify-between">
+      <div className="flex gap-2 self-stretch justify-between sm:w-fit">
         <TooltipProvider>
           {ActionButtons.map((buttons, rowIndex) => (
             <div className="flex" key={rowIndex}>

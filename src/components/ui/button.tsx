@@ -18,8 +18,8 @@ const buttonVariants = cva(
           "bg-gray-100 border border-gray-200 text-gray-800 hover:opacity-80",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
+        default: "h-10 px-4 py-2 sm:py-1 sm:px-3 sm:h-9",
+        sm: "h-9 rounded-md px-3 sm:px-2 sm:py-1 sm:h-8",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
       },

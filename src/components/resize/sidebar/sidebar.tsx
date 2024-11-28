@@ -6,6 +6,8 @@ import { useStore } from "@/hooks/store";
 import { PositionActions } from "./position-actions";
 import { PresetActions } from "./preset-actions";
 import { cropImage, downloadImage, loadImage } from "@/lib/util";
+import { cx } from "class-variance-authority";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
 export default function Sidebar() {
   const {
@@ -64,40 +66,57 @@ export default function Sidebar() {
   }, [image]);
 
   return (
-    <div className="h-full flex-[300px] flex-shrink-0 margin-10 bg-white shadow-sm rounded-3xl flex flex-col px-6 pb-7 pt-6 gap-8 slide-in">
+    <div
+      className={cx(
+        "relative h-full flex-[300px] flex-shrink-0 margin-10 bg-white shadow-sm rounded-3xl flex flex-col px-6 pb-7 pt-6 gap-8 slide-in",
+        "sm:w-full sm:p-6 sm:[animation-play-state:paused] sm:translate-x-0 sm:rounded-t-none sm:gap-5 sm:flex-[content]",
+      )}>
       <Logo />
-      <PositionActions disabled={isImageResizing} />
-      <PresetActions disabled={isImageResizing} />
-      <div className="border-b border-gray-200" />
-      <div className="flex flex-col self-stretch gap-4">
-        <Button
-          disabled={!canRegenerate && cannotResizeImage}
-          isLoading={isImageResizing}
-          onClick={handleGenerate}>
-          {canRegenerate ? "Regenerate" : "Resize"}
-        </Button>
-        {canRegenerate && (
-          <div className="flex w-full gap-2">
-            <Button
-              variant="secondary"
-              disabled={isImageResizing}
-              onClick={resetImageToOriginal}
-              className="flex-1">
-              Reset to default
-            </Button>
-            <Button
-              disabled={isImageResizing}
-              className="flex-1"
-              variant="secondary"
-              onClick={() => {
-                console.log("image -> ", image.src);
-                downloadImage(image.src);
-              }}>
-              Download
-            </Button>
-          </div>
-        )}
+      <div className="flex flex-col gap-8 sm:gap-5">
+        <div className="flex flex-col gap-8 sm:gap-5 sm:flex-row xs:!flex-col">
+          <PositionActions disabled={isImageResizing} />
+          <PresetActions disabled={isImageResizing} />
+        </div>
+        <div className="border-b border-gray-200 sm:hidden" />
+        <div className="flex flex-col self-stretch gap-4">
+          <Button
+            disabled={!canRegenerate && cannotResizeImage}
+            isLoading={isImageResizing}
+            onClick={handleGenerate}>
+            {canRegenerate ? "Regenerate" : "Resize"}
+          </Button>
+          {canRegenerate && (
+            <div className="flex w-full gap-2">
+              <Button
+                variant="secondary"
+                disabled={isImageResizing}
+                onClick={resetImageToOriginal}
+                className="flex-1">
+                Reset to default
+              </Button>
+              <Button
+                disabled={isImageResizing}
+                className="flex-1"
+                variant="secondary"
+                onClick={() => {
+                  console.log("image -> ", image.src);
+                  downloadImage(image.src);
+                }}>
+                Download
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
+      <div className="flex-1 sm:hidden" />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => router.push("/")}
+        className="rounded-full text-gray-500 sm:absolute sm:top-4 sm:right-6">
+        <ArrowLeft />
+        Back
+      </Button>
     </div>
   );
 }

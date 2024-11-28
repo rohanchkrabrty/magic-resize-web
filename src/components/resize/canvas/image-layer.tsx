@@ -74,10 +74,6 @@ export function ImageLayer() {
         }}
         onTransformEnd={syncCanvasData}
         onDragEnd={syncCanvasData}
-        onClick={e => {
-          e.cancelBubble = true;
-          console.log("select");
-        }}
       />
       <Transformer
         ref={trRef}

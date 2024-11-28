@@ -16,7 +16,7 @@ export function PresetActions({ disabled = false }: PropsType) {
   const updateCanvas = useStore(state => state.updateCanvas);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col sm:flex-1">
       <p className="uppercase text-[11px] font-semibold text-gray-500 mb-3">
         Preset
       </p>

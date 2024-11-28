@@ -33,7 +33,7 @@ export default function Home() {
 
   return (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="shadow-sm border border-gray-200 p-8 bg-white rounded-2xl w-[500px] gap-10 flex flex-col">
+      <div className="shadow-sm border border-gray-200 p-8 bg-white rounded-2xl w-[500px] gap-10 flex flex-col sm:p-6 sm:w-full sm:h-full sm:rounded-none">
         <Logo />
         <ImageUpload onChange={handleChange} isLoading={isLoading} />
         <div className="flex justify-between items-center">
