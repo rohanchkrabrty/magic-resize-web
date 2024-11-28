@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import Konva from "konva";
-import { Image, Transformer } from "react-konva";
+import { Image } from "react-konva";
 import { useStore } from "@/hooks/store";
 import { getImageCrop } from "@/lib/util";
+import { TransformLayer } from "./transform-layer";
 
 export function ImageLayer() {
   const imageRef = useRef<Konva.Image>(null);
@@ -75,25 +76,7 @@ export function ImageLayer() {
         onTransformEnd={syncCanvasData}
         onDragEnd={syncCanvasData}
       />
-      <Transformer
-        ref={trRef}
-        listening={!isResizing}
-        visible={!isResizing}
-        keepRatio={false}
-        flipEnabled={false}
-        rotateEnabled={false}
-        borderStroke="#8300ff"
-        borderStrokeWidth={1.5}
-        anchorCornerRadius={100}
-        anchorStrokeWidth={1.5}
-        anchorStroke="#8300ff"
-        boundBoxFunc={(oldBox, newBox) => {
-          if (Math.abs(newBox.width) < 10 || Math.abs(newBox.height) < 10) {
-            return oldBox;
-          }
-          return newBox;
-        }}
-      />
+      <TransformLayer disabled={!isResizing} ref={trRef} />
     </>
   );
 }

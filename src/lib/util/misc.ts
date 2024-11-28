@@ -9,3 +9,15 @@ export function fileToDataURL(file: File) {
     reader.onerror = reject;
   });
 }
+
+export function scale(
+  number: number,
+  inMin: number,
+  inMax: number,
+  outMin: number,
+  outMax: number,
+) {
+  if (number <= inMin) return outMin;
+  if (number >= inMax) return outMax;
+  return ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+}
